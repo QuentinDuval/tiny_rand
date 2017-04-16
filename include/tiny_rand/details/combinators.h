@@ -55,22 +55,13 @@ auto transform_gen(Mapper map, ValueGenerator value_generator)
    };
 }
 
-template<typename After, typename Before>
-auto compose_gen(After after, Before before)
-{
-   return [=](std::mt19937& bit_gen)
-   {
-      return after(before(bit_gen));
-   };
-}
-
 template<typename Finalizer, typename ValueGenerator, typename... ValueGenerators>
 auto one_of_gen(Finalizer finalizer, ValueGenerator value_gen, ValueGenerators... value_gens)
 {
    using Out = decltype(finalizer(value_gen(std::declval<std::mt19937&>())));
    std::vector<std::function<Out(std::mt19937&)>> gens{
-      compose_gen(finalizer, value_gen),
-      compose_gen(finalizer, value_gens)...
+      transform_gen(finalizer, value_gen),
+      transform_gen(finalizer, value_gens)...
    };
 
    return [=](std::mt19937& gen)
