@@ -2,9 +2,10 @@
 // Created by Duval Quentin on 16/04/2017.
 //
 
-#include "tiny_rand/generators.h"
-
 #include <gtest/gtest.h>
+#include <random>
+
+#include "tiny_rand/generators.h"
 
 
 struct ContainersTest : public ::testing::Test
@@ -13,7 +14,9 @@ struct ContainersTest : public ::testing::Test
    std::mt19937 m_bit_gen;
 };
 
-TEST_F(ContainersTest, should_just_work)
+TEST_F(ContainersTest, generation_of_strings)
 {
-
+   auto gen = tiny_rand::string_gen(10, tiny_rand::letter_gen());
+   std::string val = gen(m_bit_gen);
+   ASSERT_LE(val.size(), 10);
 }

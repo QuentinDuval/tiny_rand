@@ -1,10 +1,11 @@
 //
 // Created by Duval Quentin on 16/04/2017.
 //
-
-#include "tiny_rand/generators.h"
+#include "rgb_color.h"
 
 #include <iostream>
+
+#include "tiny_rand/generators.h"
 
 
 struct rgb_color

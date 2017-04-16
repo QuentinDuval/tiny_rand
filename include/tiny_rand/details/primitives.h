@@ -39,18 +39,6 @@ namespace tiny_rand
       static const std::string ALPHABET = "abcdefghijklmnopqrstuvwxyz";
       return choice_gen(ALPHABET);
    }
-
-   template<typename CharGenerator>
-   auto string_gen(int max_size, CharGenerator char_generator)
-   {
-      return [=](std::mt19937& bit_gen) -> std::string
-      {
-         std::uniform_int_distribution<int> distribution(0, max_size); //Extract in outer function
-         std::string out(distribution(bit_gen), ' ');
-         for (auto& val: out) val = char_generator(bit_gen);
-         return out;
-      };
-   }
 }
 
 #endif //TINYRANDOM_PRIMITIVES_H

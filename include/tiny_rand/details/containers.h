@@ -11,6 +11,7 @@
 #include <map>
 #include <random>
 #include <set>
+#include <string>
 #include <vector>
 #include <unordered_set>
 #include <unordered_map>
@@ -29,6 +30,18 @@ namespace tiny_rand
                          [&]
                          { return value_gen(bit_gen); });
       }
+   }
+
+   template<typename CharGenerator>
+   auto string_gen(int max_size, CharGenerator char_generator)
+   {
+      return [=](std::mt19937& bit_gen) -> std::string
+      {
+         std::uniform_int_distribution<int> distribution(0, max_size);
+         std::string out(distribution(bit_gen), ' ');
+         details::repeat_n_gen(out.begin(), out.size(), char_generator, bit_gen);
+         return out;
+      };
    }
 
    template<typename ValueGenerator>
