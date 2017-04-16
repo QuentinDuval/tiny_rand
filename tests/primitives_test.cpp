@@ -54,3 +54,17 @@ TEST_F(DoubleGeneratorShould, be_in_the_range)
    ASSERT_GE(val, -10);
    ASSERT_LE(val, 10);
 }
+
+struct CharGeneratorShould : PrimitivesTest
+{
+   char run_gen()
+   {
+      return tiny_rand::char_gen()(m_bit_gen);
+   }
+};
+
+TEST_F(CharGeneratorShould, be_in_the_range)
+{
+   char val = run_gen();
+   ASSERT_LE(',', val);
+}

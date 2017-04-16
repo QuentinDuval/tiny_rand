@@ -37,12 +37,10 @@ namespace tiny_rand
 
    inline auto char_gen()
    {
-      return [=](std::mt19937& bit_gen)
+      return [=](std::mt19937& bit_gen) -> char
       {
          std::uniform_int_distribution<int> distribution{
-            std::numeric_limits<char>::min(),
-            std::numeric_limits<char>::max()
-         };
+            std::numeric_limits<char>::min(), std::numeric_limits<char>::max()};
          return distribution(bit_gen);
       };
    }
