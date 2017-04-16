@@ -7,6 +7,7 @@
 
 #include "tiny_rand/details/combinators.h"
 
+#include <limits>
 #include <random>
 
 namespace tiny_rand
@@ -34,9 +35,46 @@ namespace tiny_rand
       };
    }
 
+   inline auto char_gen()
+   {
+      return [=](std::mt19937& bit_gen)
+      {
+         std::uniform_int_distribution<int> distribution{
+            std::numeric_limits<char>::min(),
+            std::numeric_limits<char>::max()
+         };
+         return distribution(bit_gen);
+      };
+   }
+
+   namespace details
+   {
+      inline const std::string letters()
+      {
+         return "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      }
+
+      inline const std::string numerics()
+      {
+         return "0123456789";
+      }
+   }
+
    inline auto letter_gen()
    {
-      static const std::string ALPHABET = "abcdefghijklmnopqrstuvwxyz";
+      static const std::string ALPHABET = details::letters();
+      return choice_gen(ALPHABET);
+   }
+
+   inline auto numeric_char_gen()
+   {
+      static const std::string ALPHABET = details::numerics();
+      return choice_gen(ALPHABET);
+   }
+
+   inline auto alphanum_gen()
+   {
+      static const std::string ALPHABET = details::letters() + details::numerics();
       return choice_gen(ALPHABET);
    }
 }
