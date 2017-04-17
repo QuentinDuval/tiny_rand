@@ -8,5 +8,6 @@
 #include "tiny_rand/details/combinators.h"
 #include "tiny_rand/details/containers.h"
 #include "tiny_rand/details/primitives.h"
+#include "tiny_rand/details/utils.h"
 
 #endif //TINYRANDOM_TINY_RAND_HPP_H

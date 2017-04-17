@@ -15,12 +15,7 @@ struct rgb_color
    int m_blue;
 };
 
-rgb_color make_rgb_color(int red, int green, int blue)
-{
-   return rgb_color{ red, green, blue };
-}
-
-std::ostream& operator<< (std::ostream& os, rgb_color const& c)
+std::ostream& operator<<(std::ostream& os, rgb_color const& c)
 {
    return os << "{ red: " << c.m_red
              << ", green: " << c.m_green
@@ -31,7 +26,7 @@ void rgb_color_samples(std::mt19937& bit_gen)
 {
    using namespace tiny_rand;
    auto color_gen = int_gen(0, 255);
-   auto rgb_color_gen = apply_gen(make_rgb_color, color_gen, color_gen, color_gen);
+   auto rgb_color_gen = apply_gen(to_object<rgb_color>(), color_gen, color_gen, color_gen);
 
    std::cout << "Generating colors\n";
    for (auto c : vector_gen(10, rgb_color_gen)(bit_gen))
