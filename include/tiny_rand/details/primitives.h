@@ -12,7 +12,7 @@
 
 namespace tiny_rand
 {
-inline auto int_gen(double min_val, double max_val)
+inline auto int_gen(int min_val, int max_val)
 {
    return [=](std::mt19937& bit_gen)
    {
