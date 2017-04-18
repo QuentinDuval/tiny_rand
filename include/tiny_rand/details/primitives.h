@@ -21,11 +21,6 @@ inline auto int_gen(double min_val, double max_val)
    };
 }
 
-inline auto pos_int_gen(int max_val)
-{
-   return int_gen(0, max_val);
-}
-
 inline auto double_gen(double min_val, double max_val)
 {
    return [=](std::mt19937& bit_gen)
