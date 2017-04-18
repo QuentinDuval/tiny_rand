@@ -61,6 +61,12 @@ void basics(std::mt19937& bit_gen)
 {
    using namespace tiny_rand;
 
+   std::cout << "Generate square numbers:\n";
+   auto square_gen = transform_gen([](int i) { return i * i; }, int_gen(0, 10));
+   for (int i = 0; i < 10; ++i)
+      std::cout << square_gen(bit_gen) << ",";
+   std::cout << '\n';
+
    std::cout << "Generating random characters\n";
    for (char c: vector_gen(50, char_gen())(bit_gen))
       std::cout << c;
