@@ -126,66 +126,92 @@ auto list_gen(int max_size, ValueGenerator value_gen)
 // Set random generator
 // ---------------------------------------------------------------------------------------------------------------------
 
-template<typename KeyGenerator>
-auto sorted_set_gen(int max_size, KeyGenerator key_gen)
+template<typename RollCountGenerator, typename KeyGenerator>
+auto sorted_set_gen(RollCountGenerator roll_count_gen, KeyGenerator key_gen)
 {
    return [=](std::mt19937& bit_gen)
    {
-      int count = std::uniform_int_distribution<int>{0, max_size}(bit_gen);
+      int count = roll_count_gen(bit_gen);
       std::set<decltype(key_gen(bit_gen))> out;
       details::repeat_n_gen(std::inserter(out, out.end()), count, key_gen, bit_gen);
       return out;
    };
 }
 
+template<typename KeyGenerator>
+auto sorted_set_gen(int max_rolls, KeyGenerator key_gen)
+{
+   return sorted_set_gen(int_gen(0, max_rolls), key_gen);
+}
+
 // ---------------------------------------------------------------------------------------------------------------------
 // Hash set random generator
 // ---------------------------------------------------------------------------------------------------------------------
 
-template<typename KeyGenerator>
-auto unordered_set_gen(int max_size, KeyGenerator key_gen)
+template<typename RollCountGenerator, typename KeyGenerator>
+auto unordered_set_gen(RollCountGenerator roll_count_gen, KeyGenerator key_gen)
 {
    return [=](std::mt19937& bit_gen)
    {
-      int count = std::uniform_int_distribution<int>{0, max_size}(bit_gen);
+      int count = roll_count_gen(bit_gen);
       std::unordered_set<decltype(key_gen(bit_gen))> out;
+      out.reserve(count);
       details::repeat_n_gen(std::inserter(out, out.end()), count, key_gen, bit_gen);
       return out;
    };
+}
+
+template<typename KeyGenerator>
+auto unordered_set_gen(int max_rolls, KeyGenerator key_gen)
+{
+   return unordered_set_gen(int_gen(0, max_rolls), key_gen);
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
 // Map random generator
 // ---------------------------------------------------------------------------------------------------------------------
 
-template<typename KeyGenerator, typename ValueGenerator>
-auto sorted_map_gen(int max_size, KeyGenerator key_gen, ValueGenerator value_gen)
+template<typename RollCountGenerator, typename KeyGenerator, typename ValueGenerator>
+auto sorted_map_gen(RollCountGenerator roll_count_gen, KeyGenerator key_gen, ValueGenerator value_gen)
 {
    return [=](std::mt19937& bit_gen)
    {
-      int count = std::uniform_int_distribution<int>{0, max_size}(bit_gen);
+      int count = roll_count_gen(bit_gen);
       std::map<decltype(key_gen(bit_gen)), decltype(value_gen(bit_gen))> out;
       details::repeat_n_gen(std::inserter(out, out.end()), count, pair_gen(key_gen, value_gen), bit_gen);
       return out;
    };
 }
 
+template<typename KeyGenerator, typename ValueGenerator>
+auto sorted_map_gen(int max_rolls, KeyGenerator key_gen, ValueGenerator value_gen)
+{
+   return sorted_map_gen(int_gen(0, max_rolls), key_gen, value_gen);
+}
+
 // ---------------------------------------------------------------------------------------------------------------------
 // Hash map random generator
 // ---------------------------------------------------------------------------------------------------------------------
 
-template<typename KeyGenerator, typename ValueGenerator>
-auto unordered_map_gen(int max_size, KeyGenerator key_gen, ValueGenerator value_gen)
+template<typename RollCountGenerator, typename KeyGenerator, typename ValueGenerator>
+auto unordered_map_gen(RollCountGenerator roll_count_gen, KeyGenerator key_gen, ValueGenerator value_gen)
 {
    return [=](std::mt19937& bit_gen)
    {
-      int count = std::uniform_int_distribution<int>{0, max_size}(bit_gen);
+      int count = roll_count_gen(bit_gen);
       std::unordered_map<decltype(key_gen(bit_gen)), decltype(value_gen(bit_gen))> out;
       out.reserve(count);
       details::repeat_n_gen(std::inserter(out, out.end()), count, pair_gen(key_gen, value_gen), bit_gen);
       return out;
    };
 }
+
+template<typename KeyGenerator, typename ValueGenerator>
+auto unordered_map_gen(int max_rolls, KeyGenerator key_gen, ValueGenerator value_gen)
+{
+   return unordered_map_gen(int_gen(0, max_rolls), key_gen, value_gen);
+}
+
 }
 
 #endif //TINYRANDOM_CONTAINERS_H
