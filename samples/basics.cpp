@@ -11,22 +11,22 @@
 
 #include "tiny_rand/generators.h"
 
-template <size_t n, typename... T>
+template<size_t n, typename... T>
 typename std::enable_if<(n >= sizeof...(T))>::type
 print_tuple(std::ostream&, const std::tuple<T...>&)
 {}
 
-template <size_t n, typename... T>
+template<size_t n, typename... T>
 typename std::enable_if<(n < sizeof...(T))>::type
 print_tuple(std::ostream& os, const std::tuple<T...>& tup)
 {
    if (n != 0)
       os << ", ";
    os << std::get<n>(tup);
-   print_tuple<n+1>(os, tup);
+   print_tuple<n + 1>(os, tup);
 }
 
-template <typename... T>
+template<typename... T>
 std::ostream& operator<<(std::ostream& os, const std::tuple<T...>& tup)
 {
    os << "[";
@@ -34,11 +34,28 @@ std::ostream& operator<<(std::ostream& os, const std::tuple<T...>& tup)
    return os << "]";
 }
 
-template <typename A, typename B>
-std::ostream& operator<< (std::ostream& os, std::pair<A, B> const& p)
+template<typename A, typename B>
+std::ostream& operator<<(std::ostream& os, std::pair<A, B> const& p)
 {
    return os << "[ " << p.first << ", " << p.second << " ]";
 }
+
+//----------------------------------------------------------------------------------------------------------------------
+
+inline auto cpp_identifier_gen(int max_size)
+{
+   using namespace tiny_rand;
+   static const std::string HEAD_CHARS = "_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+   static const auto head_char_gen = choice_gen(HEAD_CHARS);
+   static const auto rest_gen = string_gen(max_size - 1, choice_gen(HEAD_CHARS + "1234567890"));
+
+   return [=](std::mt19937& bit_gen) -> std::string
+   {
+      return std::string {1, head_char_gen(bit_gen)} + rest_gen(bit_gen);
+   };
+}
+
+//----------------------------------------------------------------------------------------------------------------------
 
 void basics(std::mt19937& bit_gen)
 {
@@ -48,6 +65,10 @@ void basics(std::mt19937& bit_gen)
    for (char c: vector_gen(50, char_gen())(bit_gen))
       std::cout << c;
    std::cout << '\n';
+
+   std::cout << "Generating valid function names for C++\n";
+   for (auto const& id: vector_gen(10, cpp_identifier_gen(30))(bit_gen))
+      std::cout << id << '\n';
 
    auto words_gen = string_gen(10, letter_gen());
    auto coord_1d_gen = double_gen(-10, 10);
