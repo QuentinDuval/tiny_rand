@@ -9,12 +9,24 @@
 
 namespace tiny_rand
 {
-template<typename Finalizer, typename... ValueGenerators>
-auto apply_gen(Finalizer finalizer, ValueGenerators... value_generators)
+
+//FUNCTOR INSTANCE
+template<typename Mapper, typename Generator>
+auto transform_gen(Mapper map, Generator generator)
 {
    return [=](std::mt19937& bit_gen)
    {
-      return finalizer(value_generators(bit_gen)...);
+      return map(generator(bit_gen));
+   };
+}
+
+//APPLICATIVE INSTANCE
+template<typename Finalizer, typename... Generators>
+auto apply_gen(Finalizer finalizer, Generators... generators)
+{
+   return [=](std::mt19937& bit_gen)
+   {
+      return finalizer(generators(bit_gen)...);
    };
 }
 
@@ -43,15 +55,6 @@ auto choice_gen(Container const& values)
    {
       std::uniform_int_distribution<int> distribution(0, values.size() - 1);
       return values[distribution(bit_gen)];
-   };
-}
-
-template<typename Mapper, typename ValueGenerator>
-auto transform_gen(Mapper map, ValueGenerator value_generator)
-{
-   return [=](std::mt19937& bit_gen)
-   {
-      return map(value_generator(bit_gen));
    };
 }
 
