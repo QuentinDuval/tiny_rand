@@ -16,6 +16,8 @@
 #include <unordered_set>
 #include <unordered_map>
 
+#include "tiny_rand/details/primitives.h"
+
 
 namespace tiny_rand
 {
@@ -32,17 +34,30 @@ void repeat_n_gen(OutputIterator out, int count,
 }
 }
 
-template<typename CharGenerator>
-auto string_gen(int max_size, CharGenerator char_generator)
+// ---------------------------------------------------------------------------------------------------------------------
+// String random generator
+// ---------------------------------------------------------------------------------------------------------------------
+
+template<typename SizeGenerator, typename CharGenerator>
+auto string_gen(SizeGenerator size_gen, CharGenerator char_generator)
 {
    return [=](std::mt19937& bit_gen) -> std::string
    {
-      std::uniform_int_distribution<int> distribution(0, max_size);
-      std::string out(distribution(bit_gen), ' ');
+      std::string out(size_gen(bit_gen), ' ');
       details::repeat_n_gen(out.begin(), out.size(), char_generator, bit_gen);
       return out;
    };
 }
+
+template<typename CharGenerator>
+auto string_gen(int max_size, CharGenerator char_generator)
+{
+   return string_gen(int_gen(0, max_size), char_generator);
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Vector random generator
+// ---------------------------------------------------------------------------------------------------------------------
 
 template<typename ValueGenerator>
 auto vector_gen(int max_size, ValueGenerator value_gen)
