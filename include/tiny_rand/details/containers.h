@@ -59,12 +59,12 @@ auto string_gen(int max_size, CharGenerator char_generator)
 // Vector random generator
 // ---------------------------------------------------------------------------------------------------------------------
 
-template<typename ValueGenerator>
-auto vector_gen(int max_size, ValueGenerator value_gen)
+template<typename SizeGenerator, typename ValueGenerator>
+auto vector_gen(SizeGenerator size_gen, ValueGenerator value_gen)
 {
    return [=](std::mt19937& bit_gen)
    {
-      int count = std::uniform_int_distribution<int>{0, max_size}(bit_gen);
+      int count = size_gen(bit_gen);
       std::vector<decltype(value_gen(bit_gen))> out;
       out.reserve(count);
       details::repeat_n_gen(std::back_inserter(out), count, value_gen, bit_gen);
@@ -73,12 +73,44 @@ auto vector_gen(int max_size, ValueGenerator value_gen)
 }
 
 template<typename ValueGenerator>
-auto deque_gen(int max_size, ValueGenerator value_gen)
+auto vector_gen(int max_size, ValueGenerator value_gen)
+{
+   return vector_gen(int_gen(0, max_size), value_gen);
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Deque random generator
+// ---------------------------------------------------------------------------------------------------------------------
+
+template<typename SizeGenerator, typename ValueGenerator>
+auto deque_gen(SizeGenerator size_gen, ValueGenerator value_gen)
 {
    return [=](std::mt19937& bit_gen)
    {
-      int count = std::uniform_int_distribution<int>{0, max_size}(bit_gen);
+      int count = size_gen(bit_gen);
       std::deque<decltype(value_gen(bit_gen))> out;
+      details::repeat_n_gen(std::back_inserter(out), count, value_gen, bit_gen);
+      return out;
+   };
+}
+
+template<typename ValueGenerator>
+auto deque_gen(int max_size, ValueGenerator value_gen)
+{
+   return deque_gen(int_gen(0, max_size), value_gen);
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
+// List random generator
+// ---------------------------------------------------------------------------------------------------------------------
+
+template<typename SizeGenerator, typename ValueGenerator>
+auto list_gen(SizeGenerator size_gen, ValueGenerator value_gen)
+{
+   return [=](std::mt19937& bit_gen)
+   {
+      int count = size_gen(bit_gen);
+      std::list<decltype(value_gen(bit_gen))> out;
       details::repeat_n_gen(std::back_inserter(out), count, value_gen, bit_gen);
       return out;
    };
@@ -87,14 +119,12 @@ auto deque_gen(int max_size, ValueGenerator value_gen)
 template<typename ValueGenerator>
 auto list_gen(int max_size, ValueGenerator value_gen)
 {
-   return [=](std::mt19937& bit_gen)
-   {
-      int count = std::uniform_int_distribution<int>{0, max_size}(bit_gen);
-      std::list<decltype(value_gen(bit_gen))> out;
-      details::repeat_n_gen(std::back_inserter(out), count, value_gen, bit_gen);
-      return out;
-   };
+   return list_gen(int_gen(0, max_size), value_gen);
 }
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Set random generator
+// ---------------------------------------------------------------------------------------------------------------------
 
 template<typename KeyGenerator>
 auto sorted_set_gen(int max_size, KeyGenerator key_gen)
@@ -108,6 +138,10 @@ auto sorted_set_gen(int max_size, KeyGenerator key_gen)
    };
 }
 
+// ---------------------------------------------------------------------------------------------------------------------
+// Hash set random generator
+// ---------------------------------------------------------------------------------------------------------------------
+
 template<typename KeyGenerator>
 auto unordered_set_gen(int max_size, KeyGenerator key_gen)
 {
@@ -120,6 +154,10 @@ auto unordered_set_gen(int max_size, KeyGenerator key_gen)
    };
 }
 
+// ---------------------------------------------------------------------------------------------------------------------
+// Map random generator
+// ---------------------------------------------------------------------------------------------------------------------
+
 template<typename KeyGenerator, typename ValueGenerator>
 auto sorted_map_gen(int max_size, KeyGenerator key_gen, ValueGenerator value_gen)
 {
@@ -131,6 +169,10 @@ auto sorted_map_gen(int max_size, KeyGenerator key_gen, ValueGenerator value_gen
       return out;
    };
 }
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Hash map random generator
+// ---------------------------------------------------------------------------------------------------------------------
 
 template<typename KeyGenerator, typename ValueGenerator>
 auto unordered_map_gen(int max_size, KeyGenerator key_gen, ValueGenerator value_gen)
