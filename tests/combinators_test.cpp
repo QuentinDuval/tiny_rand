@@ -7,16 +7,71 @@
 #include <gtest/gtest.h>
 #include <random>
 
+using namespace tiny_rand;
+
 struct CombinatorsTest : public ::testing::Test
 {
    CombinatorsTest() : m_bit_gen(0) {}
    std::mt19937 m_bit_gen;
 };
 
-TEST_F(CombinatorsTest, one_of_generator_with_finalizer)
-{
-   using namespace tiny_rand;
 
+TEST_F(CombinatorsTest, test_functor)
+{
+   auto negative_gen = transform_gen([](int i) { return -i;}, int_gen(1, 10));
+   ASSERT_LT(negative_gen(m_bit_gen), 0);
+}
+
+template <typename Container>
+bool all_equal_to(Container const& cont, typename Container::value_type const& seeked)
+{
+   return std::all_of(cont.begin(), cont.end(), [&](auto const& val) { return val == seeked; });
+}
+
+TEST_F(CombinatorsTest, test_applicative)
+{
+   auto string_test =
+      apply_gen(
+         [](int i, char c) { return std::string(i, c); },
+         int_gen(2, 10),
+         letter_gen()
+      );
+
+   std::string result = string_test(m_bit_gen);
+   ASSERT_GT(result.size(), 2);
+   EXPECT_LT(result.size(), 10);
+   EXPECT_TRUE(all_equal_to(result, result[0]));
+}
+
+template <typename Container>
+bool contains(Container const& cont, typename Container::value_type const& seeked)
+{
+   return cont.end() != std::find(cont.begin(), cont.end(), seeked);
+}
+
+TEST_F(CombinatorsTest, test_choice_generator)
+{
+   std::vector<int> choices = {1, 2, 3, 5, 8, 13, 21};
+   auto fib_choice = choice_gen(choices);
+   EXPECT_TRUE(contains(choices, fib_choice(m_bit_gen)));
+}
+
+TEST_F(CombinatorsTest, test_pair_generator)
+{
+   auto p = pair_gen(int_gen(1, 10), int_gen(-10, -1))(m_bit_gen);
+   ASSERT_LT(0, p.first);
+   ASSERT_LT(p.second, 0);
+}
+
+TEST_F(CombinatorsTest, test_tuple_generator)
+{
+   auto t = tuple_gen(int_gen(1, 10), int_gen(-10, -1))(m_bit_gen);
+   ASSERT_LT(0, std::get<0>(t));
+   ASSERT_LT(std::get<1>(t), 0);
+}
+
+TEST_F(CombinatorsTest, test_one_of_generator)
+{
    struct finalizer
    {
       int operator() (int i) const { return i; }
