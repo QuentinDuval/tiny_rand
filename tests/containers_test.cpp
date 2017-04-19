@@ -37,3 +37,27 @@ TEST_F(ContainersTest, generation_of_strings)
          return string_gen(int_gen(min_size, max_size), gen);
       });
 }
+
+TEST_F(ContainersTest, generation_of_vector)
+{
+   sequential_container_test(
+      [](int min_size, int max_size, auto gen) {
+         return vector_gen(int_gen(min_size, max_size), gen);
+      });
+}
+
+TEST_F(ContainersTest, generation_of_list)
+{
+   sequential_container_test(
+      [](int min_size, int max_size, auto gen) {
+         return list_gen(int_gen(min_size, max_size), gen);
+      });
+}
+
+TEST_F(ContainersTest, generation_of_deque)
+{
+   sequential_container_test(
+      [](int min_size, int max_size, auto gen) {
+         return deque_gen(int_gen(min_size, max_size), gen);
+      });
+}
