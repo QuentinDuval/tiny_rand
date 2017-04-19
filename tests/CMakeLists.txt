@@ -5,7 +5,7 @@ add_executable(
         tiny_random_test
         tests.cpp
         primitives_test.cpp
-        combinators_test.cpp containers_test.cpp)
+        combinators_test.cpp containers_test.cpp test_utils.h)
 
 target_link_libraries(
         tiny_random_test

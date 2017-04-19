@@ -3,6 +3,7 @@
 //
 
 #include "tiny_rand/generators.h"
+#include "test_utils.h"
 
 #include <gtest/gtest.h>
 #include <random>
@@ -22,12 +23,6 @@ TEST_F(CombinatorsTest, test_functor)
    ASSERT_LT(negative_gen(m_bit_gen), 0);
 }
 
-template <typename Container>
-bool all_equal_to(Container const& cont, typename Container::value_type const& seeked)
-{
-   return std::all_of(cont.begin(), cont.end(), [&](auto const& val) { return val == seeked; });
-}
-
 TEST_F(CombinatorsTest, test_applicative)
 {
    auto string_test =
@@ -41,12 +36,6 @@ TEST_F(CombinatorsTest, test_applicative)
    ASSERT_GT(result.size(), 2);
    EXPECT_LT(result.size(), 10);
    EXPECT_TRUE(all_equal_to(result, result[0]));
-}
-
-template <typename Container>
-bool contains(Container const& cont, typename Container::value_type const& seeked)
-{
-   return cont.end() != std::find(cont.begin(), cont.end(), seeked);
 }
 
 TEST_F(CombinatorsTest, test_choice_generator)

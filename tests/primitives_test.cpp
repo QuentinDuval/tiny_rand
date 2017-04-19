@@ -3,6 +3,7 @@
 //
 
 #include "tiny_rand/generators.h"
+#include "test_utils.h"
 
 #include <gtest/gtest.h>
 
@@ -67,4 +68,22 @@ TEST_F(CharGeneratorShould, be_in_the_range)
 {
    char val = run_gen();
    ASSERT_LE(',', val);
+}
+
+enum class db_relation
+{
+   one_to_one,
+   one_to_many,
+   many_to_many
+};
+
+TEST_F(PrimitivesTest, test_enumeration_generator)
+{
+   std::vector<db_relation> all_relations = {
+      db_relation::one_to_one,
+      db_relation::one_to_many,
+      db_relation::many_to_many
+   };
+   auto relation = tiny_rand::choice_gen(all_relations)(m_bit_gen);
+   ASSERT_TRUE(contains(all_relations, relation));
 }
