@@ -70,7 +70,7 @@ auto one_of_gen(Finalizer finalizer, Generator head, Generators... tail)
    return [=](std::mt19937& bit_gen)
    {
       std::uniform_int_distribution<int> distribution(0, gens.size() - 1);
-      return gens[distribution(head)](bit_gen);
+      return gens[distribution(bit_gen)](bit_gen);
    };
 }
 }
