@@ -39,12 +39,12 @@ auto pair_gen(LhsGenerator lhs_gen, RhsGenerator rhs_gen)
    };
 }
 
-template<typename... ValueGenerators>
-auto tuple_gen(ValueGenerators... value_generators)
+template<typename... Generators>
+auto tuple_gen(Generators... generators)
 {
    return [=](std::mt19937& bit_gen)
    {
-      return std::make_tuple(value_generators(bit_gen)...);
+      return std::make_tuple(generators(bit_gen)...);
    };
 }
 
@@ -58,19 +58,19 @@ auto choice_gen(Container const& values)
    };
 }
 
-template<typename Finalizer, typename ValueGenerator, typename... ValueGenerators>
-auto one_of_gen(Finalizer finalizer, ValueGenerator value_gen, ValueGenerators... value_gens)
+template<typename Finalizer, typename Generator, typename... Generators>
+auto one_of_gen(Finalizer finalizer, Generator head, Generators... tail)
 {
-   using Out = decltype(finalizer(value_gen(std::declval<std::mt19937&>())));
+   using Out = decltype(finalizer(head(std::declval<std::mt19937&>())));
    std::vector<std::function<Out(std::mt19937&)>> gens{
-      transform_gen(finalizer, value_gen),
-      transform_gen(finalizer, value_gens)...
+      transform_gen(finalizer, head),
+      transform_gen(finalizer, tail)...
    };
 
    return [=](std::mt19937& gen)
    {
       std::uniform_int_distribution<int> distribution(0, gens.size() - 1);
-      return gens[distribution(gen)](gen);
+      return gens[distribution(head)](head);
    };
 }
 }
