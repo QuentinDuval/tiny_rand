@@ -13,6 +13,11 @@ bool all_equal_to(Container const& cont, typename Container::value_type const& s
    return std::all_of(cont.begin(), cont.end(), [&](auto const& val) { return val == seeked; });
 }
 
+template <typename Container, typename Predicate>
+bool all_of(Container const& c, Predicate p)
+{
+   return std::all_of(c.begin(), c.end(), p);
+};
 
 template <typename Container>
 bool contains(Container const& cont, typename Container::value_type const& seeked)
