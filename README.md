@@ -10,8 +10,13 @@ A small API that allows to generate any kind of STL data structures:
 
 * Primitives: int, double, strings
 * Containers: vector, list, maps, sets...
+* Product types: tuples, and custom struct or classes
+* Sum types: variants, optionals, ...
 
-And to combine them together to generate any kind of data by composition.
+It does so by allowing to combine generator together to produce any kind of data.
+
+You can find a blog post introducing the rationale and the design further here:
+https://deque.blog/2017/04/20/building-on-the-stl-random-header/
 
 ## Examples
 
