@@ -5,6 +5,8 @@
 #ifndef TINYRANDOM_COMBINATORS_H
 #define TINYRANDOM_COMBINATORS_H
 
+#include <algorithm>
+#include <numeric>
 #include <random>
 
 namespace tiny_rand
@@ -55,6 +57,47 @@ auto choice_gen(Container const& values)
    {
       std::uniform_int_distribution<int> distribution(0, values.size() - 1);
       return values[distribution(bit_gen)];
+   };
+}
+
+namespace details
+{
+template<typename Value>
+std::vector<std::pair<double, Value>> to_search_vector(std::vector<std::pair<Value, double>> const& weighted_values)
+{
+   std::vector<std::pair<double, Value>> value_map;
+   value_map.reserve(weighted_values.size());
+
+   double summed_weights = 0.0;
+   for (auto const& weighted_value: weighted_values)
+   {
+      summed_weights += weighted_value.second;
+      value_map.emplace_back(summed_weights, weighted_value.first);
+   }
+   return value_map;
+}
+
+template<typename Value>
+Value search_by_weight(std::vector<std::pair<double, Value>> const& value_map, double weight)
+{
+   auto it = std::lower_bound(
+      value_map.begin(), value_map.end(), weight,
+      [](auto const& element, double weight)
+      {
+         return element.first < weight;
+      });
+   return it->second; //By construction, always exists
+}
+}
+
+template<typename Value>
+auto weighted_choice_gen(std::vector<std::pair<Value, double>> const& weighted_values)
+{
+   auto const& value_map = details::to_search_vector(weighted_values);
+   return [=](std::mt19937& bit_gen) -> Value
+   {
+      std::uniform_int_distribution<double> distribution(0., value_map.back().first);
+      return details::search_by_weight(value_map, distribution(bit_gen));
    };
 }
 
