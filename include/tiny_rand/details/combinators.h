@@ -94,9 +94,10 @@ template<typename Value>
 auto weighted_choice_gen(std::vector<std::pair<Value, double>> const& weighted_values)
 {
    auto const& value_map = details::to_search_vector(weighted_values);
+   double sum_weights = value_map.back().first;
    return [=](std::mt19937& bit_gen) -> Value
    {
-      std::uniform_int_distribution<double> distribution(0., value_map.back().first);
+      std::uniform_real_distribution<double> distribution(0., sum_weights);
       return details::search_by_weight(value_map, distribution(bit_gen));
    };
 }

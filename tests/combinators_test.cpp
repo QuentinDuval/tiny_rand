@@ -113,33 +113,22 @@ TEST_F(CombinatorsTest, test_search_by_weight)
    EXPECT_EQ(3, details::search_by_weight(search_vector, 4.5));
 }
 
-TEST_F(CombinatorsTest, test_weighted_choice_generator)
+TEST_F(CombinatorsTest, test_weighted_choice_generator_integration)
 {
-   m_bit_gen.seed(std::random_device()());
+   m_bit_gen.seed(0); //Deterministic test
 
    std::vector<std::pair<int, double>> weighted_choices = {
-      {1, 2.},
-      {2, 1.},
-      {3, 1.}
+      {0, 2.},
+      {1, 1.},
+      {2, 1.}
    };
-
    auto int_choice = weighted_choice_gen(weighted_choices);
 
-   int count_1 = 0;
-   int count_2 = 0;
-   int count_3 = 0;
+   std::vector<int> counts(3, 0);
    for (int i = 0; i < 10000; ++i)
-   {
-      int roll = int_choice(m_bit_gen);
-      if (roll == 1)
-         ++count_1;
-      else if (roll == 2)
-         ++count_2;
-      else
-         ++count_3;
-   }
+      counts[int_choice(m_bit_gen)] += 1;
 
-   std::cout << count_1 << ", ";
-   std::cout << count_2 << ", ";
-   std::cout << count_3 << '\n';
+   EXPECT_EQ(4949, counts[0]);
+   EXPECT_EQ(2549, counts[1]);
+   EXPECT_EQ(2502, counts[2]);
 }
