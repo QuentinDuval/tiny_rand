@@ -6,8 +6,12 @@
 #define TINYRANDOM_COMBINATORS_H
 
 #include <algorithm>
+#include <functional>
 #include <numeric>
 #include <random>
+#include <tuple>
+#include <utility>
+
 
 namespace tiny_rand
 {
