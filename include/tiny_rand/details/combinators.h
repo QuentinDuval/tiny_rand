@@ -64,6 +64,23 @@ auto choice_gen(Container const& values)
    };
 }
 
+template<typename Finalizer, typename Generator, typename... Generators>
+auto one_of_gen(Finalizer finalizer, Generator head, Generators... tail)
+{
+   using Out = decltype(finalizer(head(std::declval<std::mt19937&>())));
+   using OutGen = std::function<Out(std::mt19937&)>;
+   std::vector<OutGen> gens{
+      transform_gen(finalizer, head),
+      transform_gen(finalizer, tail)...
+   };
+
+   auto generator_picker = choice_gen(gens);
+   return [=](std::mt19937& bit_gen)
+   {
+      return generator_picker(bit_gen)(bit_gen);
+   };
+}
+
 namespace details
 {
 template<typename Value>
@@ -103,22 +120,6 @@ auto weighted_choice_gen(std::vector<std::pair<Value, double>> const& weighted_v
    {
       std::uniform_real_distribution<double> distribution(0., sum_weights);
       return details::search_by_weight(value_map, distribution(bit_gen));
-   };
-}
-
-template<typename Finalizer, typename Generator, typename... Generators>
-auto one_of_gen(Finalizer finalizer, Generator head, Generators... tail)
-{
-   using Out = decltype(finalizer(head(std::declval<std::mt19937&>())));
-   std::vector<std::function<Out(std::mt19937&)>> gens{
-      transform_gen(finalizer, head),
-      transform_gen(finalizer, tail)...
-   };
-
-   return [=](std::mt19937& bit_gen)
-   {
-      std::uniform_int_distribution<int> distribution(0, gens.size() - 1);
-      return gens[distribution(bit_gen)](bit_gen);
    };
 }
 }
