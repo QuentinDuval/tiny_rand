@@ -81,10 +81,27 @@ auto one_of_gen(Finalizer finalizer, Generator head, Generators... tail)
    };
 }
 
+// ----------------------------------------------------------------------------
+// Weighted choices
+// ----------------------------------------------------------------------------
+
+template<typename Value>
+struct Weighted
+{
+   Value m_value;
+   double m_weight;
+};
+
+template<typename Value>
+Weighted<Value> weighted(Value gen, double weight)
+{
+   return Weighted<Value>{gen, weight}; // TODO - remove CTOR?
+}
+
 namespace details
 {
 template<typename Value>
-std::vector<std::pair<double, Value>> to_search_vector(std::vector<std::pair<Value, double>> const& weighted_values)
+std::vector<std::pair<double, Value>> to_search_vector(std::vector<Weighted<Value>> const& weighted_values)
 {
    std::vector<std::pair<double, Value>> value_map;
    value_map.reserve(weighted_values.size());
@@ -92,8 +109,8 @@ std::vector<std::pair<double, Value>> to_search_vector(std::vector<std::pair<Val
    double summed_weights = 0.0;
    for (auto const& weighted_value: weighted_values)
    {
-      summed_weights += weighted_value.second;
-      value_map.emplace_back(summed_weights, weighted_value.first);
+      summed_weights += weighted_value.m_weight;
+      value_map.emplace_back(summed_weights, weighted_value.m_value);
    }
    return value_map;
 }
@@ -112,7 +129,7 @@ Value search_by_weight(std::vector<std::pair<double, Value>> const& value_map, d
 }
 
 template<typename Value>
-auto weighted_choice_gen(std::vector<std::pair<Value, double>> const& weighted_values)
+auto weighted_choice_gen(std::vector<Weighted<Value>> const& weighted_values)
 {
    auto const& value_map = details::to_search_vector(weighted_values);
    double sum_weights = value_map.back().first;
@@ -120,6 +137,26 @@ auto weighted_choice_gen(std::vector<std::pair<Value, double>> const& weighted_v
    {
       std::uniform_real_distribution<double> distribution(0., sum_weights);
       return details::search_by_weight(value_map, distribution(bit_gen));
+   };
+}
+
+template<typename Finalizer, typename Generator, typename... Generators>
+auto weighted_one_of_gen(Finalizer finalizer, Weighted<Generator> head, Weighted<Generators>... tail)
+{
+   using Out = decltype(finalizer(head.m_value(std::declval<std::mt19937&>())));
+   using OutGen = std::function<Out(std::mt19937&)>;
+
+   auto map_first = [&](auto&& wg) -> Weighted<OutGen>
+   {
+      return Weighted<OutGen>{transform_gen(finalizer, wg.m_value), wg.m_weight};
+   };
+
+   std::vector<Weighted<OutGen>> weighted_gens{ map_first(head), map_first(tail)... };
+
+   auto weighted_gens_gen = weighted_choice_gen(weighted_gens);
+   return [=](std::mt19937& bit_gen)
+   {
+      return weighted_gens_gen(bit_gen)(bit_gen);
    };
 }
 }

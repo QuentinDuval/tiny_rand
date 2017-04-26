@@ -84,7 +84,7 @@ TEST_F(CombinatorsTest, test_one_of_generator)
 
 TEST_F(CombinatorsTest, test_to_search_vector)
 {
-   std::vector<std::pair<int, double>> weighted_choices = {
+   std::vector<Weighted<int>> weighted_choices = {
       {1, 2.},
       {2, 1.},
       {3, 1.5}
@@ -117,7 +117,7 @@ TEST_F(CombinatorsTest, test_weighted_choice_generator_integration)
 {
    m_bit_gen.seed(0); //Deterministic test
 
-   std::vector<std::pair<int, double>> weighted_choices = {
+   std::vector<Weighted<int>> weighted_choices = {
       {0, 2.},
       {1, 1.},
       {2, 1.}
@@ -131,4 +131,30 @@ TEST_F(CombinatorsTest, test_weighted_choice_generator_integration)
    EXPECT_EQ(4949, counts[0]);
    EXPECT_EQ(2549, counts[1]);
    EXPECT_EQ(2502, counts[2]);
+}
+
+TEST_F(CombinatorsTest, test_weighted_one_of_generator_integration)
+{
+   m_bit_gen.seed(0); //Deterministic test
+
+   std::vector<int> xs = {0,1};
+   std::vector<int> ys = {2,3};
+
+   auto xs_gen = choice_gen(xs);
+   auto ys_gen = choice_gen(ys);
+
+   auto int_choice = weighted_one_of_gen(
+      [](char c) { return c; },
+      weighted(xs_gen, 2.0),
+      weighted(ys_gen, 1.0)
+   );
+
+   std::vector<int> counts(4, 0);
+   for (int i = 0; i < 10000; ++i)
+      counts[int_choice(m_bit_gen)] += 1;
+
+   EXPECT_EQ(3304, counts[0]);
+   EXPECT_EQ(3353, counts[1]);
+   EXPECT_EQ(1635, counts[2]);
+   EXPECT_EQ(1708, counts[3]);
 }
