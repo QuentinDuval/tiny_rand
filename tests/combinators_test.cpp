@@ -90,7 +90,7 @@ TEST_F(CombinatorsTest, test_to_search_vector)
       {3, 1.5}
    };
 
-   std::vector<std::pair<double, int>> search_vector = details::to_search_vector(weighted_choices);
+   std::vector<std::pair<double, int>> search_vector = details::make_intervals(weighted_choices);
    ASSERT_EQ(weighted_choices.size(), search_vector.size());
    EXPECT_EQ(std::make_pair(2., 1), search_vector[0]);
    EXPECT_EQ(std::make_pair(3., 2), search_vector[1]);
@@ -105,12 +105,12 @@ TEST_F(CombinatorsTest, test_search_by_weight)
       {4.5, 3}
    };
 
-   EXPECT_EQ(1, details::search_by_weight(search_vector, 0.0));
-   EXPECT_EQ(1, details::search_by_weight(search_vector, 2.0));
-   EXPECT_EQ(2, details::search_by_weight(search_vector, 2.1));
-   EXPECT_EQ(2, details::search_by_weight(search_vector, 3.0));
-   EXPECT_EQ(3, details::search_by_weight(search_vector, 3.1));
-   EXPECT_EQ(3, details::search_by_weight(search_vector, 4.5));
+   EXPECT_EQ(1, details::search_containing_interval(search_vector, 0.0));
+   EXPECT_EQ(1, details::search_containing_interval(search_vector, 2.0));
+   EXPECT_EQ(2, details::search_containing_interval(search_vector, 2.1));
+   EXPECT_EQ(2, details::search_containing_interval(search_vector, 3.0));
+   EXPECT_EQ(3, details::search_containing_interval(search_vector, 3.1));
+   EXPECT_EQ(3, details::search_containing_interval(search_vector, 4.5));
 }
 
 TEST_F(CombinatorsTest, test_weighted_choice_generator_integration)

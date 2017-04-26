@@ -101,7 +101,7 @@ Weighted<Value> weighted(Value gen, double weight)
 namespace details
 {
 template<typename Value>
-std::vector<std::pair<double, Value>> to_search_vector(std::vector<Weighted<Value>> const& weighted_values)
+std::vector<std::pair<double, Value>> make_intervals(std::vector<Weighted<Value>> const& weighted_values)
 {
    std::vector<std::pair<double, Value>> value_map;
    value_map.reserve(weighted_values.size());
@@ -116,7 +116,7 @@ std::vector<std::pair<double, Value>> to_search_vector(std::vector<Weighted<Valu
 }
 
 template<typename Value>
-Value search_by_weight(std::vector<std::pair<double, Value>> const& value_map, double weight)
+Value search_containing_interval(std::vector<std::pair<double, Value>> const& value_map, double weight)
 {
    auto it = std::lower_bound(
       value_map.begin(), value_map.end(), weight,
@@ -131,12 +131,12 @@ Value search_by_weight(std::vector<std::pair<double, Value>> const& value_map, d
 template<typename Value>
 auto weighted_choice_gen(std::vector<Weighted<Value>> const& weighted_values)
 {
-   auto const& value_map = details::to_search_vector(weighted_values);
+   auto const& value_map = details::make_intervals(weighted_values);
    double sum_weights = value_map.back().first;
    return [=](std::mt19937& bit_gen) -> Value
    {
       std::uniform_real_distribution<double> distribution(0., sum_weights);
-      return details::search_by_weight(value_map, distribution(bit_gen));
+      return details::search_containing_interval(value_map, distribution(bit_gen));
    };
 }
 
