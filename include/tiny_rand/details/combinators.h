@@ -103,23 +103,23 @@ namespace details
 template<typename Value>
 std::vector<std::pair<double, Value>> make_intervals(std::vector<Weighted<Value>> const& weighted_values)
 {
-   std::vector<std::pair<double, Value>> value_map;
-   value_map.reserve(weighted_values.size());
+   std::vector<std::pair<double, Value>> intervals;
+   intervals.reserve(weighted_values.size());
 
    double summed_weights = 0.0;
    for (auto const& weighted_value: weighted_values)
    {
       summed_weights += weighted_value.m_weight;
-      value_map.emplace_back(summed_weights, weighted_value.m_value);
+      intervals.emplace_back(summed_weights, weighted_value.m_value);
    }
-   return value_map;
+   return intervals;
 }
 
 template<typename Value>
-Value search_containing_interval(std::vector<std::pair<double, Value>> const& value_map, double weight)
+Value search_containing_interval(std::vector<std::pair<double, Value>> const& intervals, double weight)
 {
    auto it = std::lower_bound(
-      value_map.begin(), value_map.end(), weight,
+      intervals.begin(), intervals.end(), weight,
       [](auto const& element, double weight)
       {
          return element.first < weight;
@@ -131,12 +131,12 @@ Value search_containing_interval(std::vector<std::pair<double, Value>> const& va
 template<typename Value>
 auto weighted_choice_gen(std::vector<Weighted<Value>> const& weighted_values)
 {
-   auto const& value_map = details::make_intervals(weighted_values);
-   double sum_weights = value_map.back().first;
+   auto const& intervals = details::make_intervals(weighted_values);
+   double sum_weights = intervals.back().first;
    return [=](std::mt19937& bit_gen) -> Value
    {
       std::uniform_real_distribution<double> distribution(0., sum_weights);
-      return details::search_containing_interval(value_map, distribution(bit_gen));
+      return details::search_containing_interval(intervals, distribution(bit_gen));
    };
 }
 
@@ -153,10 +153,10 @@ auto weighted_one_of_gen(Finalizer finalizer, Weighted<Generator> head, Weighted
 
    std::vector<Weighted<OutGen>> weighted_gens{ map_first(head), map_first(tail)... };
 
-   auto weighted_gens_gen = weighted_choice_gen(weighted_gens);
+   auto generator_picker = weighted_choice_gen(weighted_gens);
    return [=](std::mt19937& bit_gen)
    {
-      return weighted_gens_gen(bit_gen)(bit_gen);
+      return generator_picker(bit_gen)(bit_gen);
    };
 }
 }
