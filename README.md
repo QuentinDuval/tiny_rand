@@ -1,6 +1,6 @@
 # tiny_rand
 
-A small header only library to randomly generate data.
+A small header-only library to randomly generate data.
 
 Useful to quickly generate test samples without requiring a big library as dependency.
 
@@ -8,19 +8,18 @@ Useful to quickly generate test samples without requiring a big library as depen
 
 A small API that allows to generate any kind of STL data structures:
 
-* Primitives: int, double, strings
-* Containers: vector, list, maps, sets...
-* Product types: tuples, and custom struct or classes
+* Primitives: int, double, strings, ...
+* Containers: vector, list, maps, sets, ...
+* Product types: tuples, and custom struct or classes.
 * Sum types: variants, optionals, ...
 
 It does so by allowing to combine generator together to produce any kind of data.
 
-You can find a blog post introducing the rationale and the design further here:
-https://deque.blog/2017/04/20/building-on-the-stl-random-header/
+[You can find here a blog post introducing the rationale and the design further.](https://deque.blog/2017/04/20/building-on-the-stl-random-header/)
 
 ## Examples
 
-Generating a custom data structure `rgb_color` in a few lines of code. Print the result.
+Generating a custom data structure `rgb_color` in a few lines of code and printing the result:
 
     struct rgb_color
     {
